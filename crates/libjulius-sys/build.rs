@@ -21,7 +21,7 @@ impl bindgen::callbacks::ParseCallbacks for IgnoreMacros {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let build_dir_str=std::env::var_os("OUT_DIR").unwrap();
+    let build_dir_str = std::env::var_os("OUT_DIR").unwrap();
     let build_dir = Path::new(&build_dir_str);
 
     let julius_dir = prepare_source(build_dir)?;
@@ -51,7 +51,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .arg("--with-mictype=none")
         .current_dir(&julius_dir)
         .output()?;
-    
+
     eprintln!("{}\n", std::str::from_utf8(&configure_output.stdout)?);
     eprintln!("{}\n", std::str::from_utf8(&configure_output.stderr)?);
 
@@ -59,7 +59,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     eprintln!("--- make start ---");
 
-    let make_output=Command::new("make").current_dir(&julius_dir).output()?;
+    let make_output = Command::new("make").current_dir(&julius_dir).output()?;
     eprintln!("{}\n", std::str::from_utf8(&make_output.stdout)?);
     eprintln!("{}\n", std::str::from_utf8(&make_output.stderr)?);
 
@@ -105,9 +105,13 @@ fn generate_bindings(julius_dir: &Path) {
     let bindings = bindgen::Builder::default()
         .header("wrapper.h")
         .clang_args([
-            format!("-F{}", julius_dir.join("libjulius/include").to_str().unwrap()), 
-            format!("-F{}", julius_dir.join("libsent/include").to_str().unwrap()), 
+            format!(
+                "-F{}",
+                julius_dir.join("libjulius/include").to_str().unwrap()
+            ),
+            format!("-F{}", julius_dir.join("libsent/include").to_str().unwrap()),
         ])
+        .allowlist_file(format!("{}.*", julius_dir.to_str().unwrap()))
         .parse_callbacks(Box::new(ignored_macros))
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .generate()
@@ -138,8 +142,7 @@ fn prepare_source(build_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
         let tmp_path = build_dir.join(file_name.to_owned() + ".download");
 
         // Download a tarball
-        let download_url =
-            "https://github.com/julius-speech/julius/archive/refs/tags/v4.6.tar.gz";
+        let download_url = "https://github.com/julius-speech/julius/archive/refs/tags/v4.6.tar.gz";
         let resp = ureq::get(download_url).call()?;
         let mut dest = File::create(&tmp_path)?;
 
