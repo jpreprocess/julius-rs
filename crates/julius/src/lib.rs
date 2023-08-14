@@ -74,6 +74,10 @@ impl<'a> JConf<'a> {
             Ok(Self(unsafe { &mut *jconf }))
         }
     }
+
+    pub unsafe fn as_raw_ptr(&self) -> *mut libjulius_sys::Jconf {
+        self.0 as *const libjulius_sys::Jconf as *mut libjulius_sys::Jconf
+    }
 }
 
 impl<'a> Drop for JConf<'a> {
@@ -200,6 +204,10 @@ impl<'a> Recog<'a> {
         let mut recog_wrapped = Self(&mut *recog);
         cb(&mut recog_wrapped, buffer);
         std::mem::forget(recog_wrapped);
+    }
+
+    pub unsafe fn as_raw_ptr(&self) -> *mut libjulius_sys::Recog {
+        self.0 as *const libjulius_sys::Recog as *mut libjulius_sys::Recog
     }
 }
 
