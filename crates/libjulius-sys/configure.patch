@@ -1,0 +1,13 @@
+diff --git a/libsent/configure b/libsent/configure
+index f43b40a..5ed98c1 100755
+--- a/libsent/configure
++++ b/libsent/configure
+@@ -5729,6 +5729,8 @@ fi
+ 
+ 	SOUNDLIB="$SOUNDLIB -laudio"
+ 	 ;;
++    none)
++	;;
+ #    osf1)
+ #	aldesc="Digital/Unix 4.0"
+ #	ADINOBJ=src/adin/adin_mic_osf1.o

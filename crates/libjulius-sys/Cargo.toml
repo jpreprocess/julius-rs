@@ -1,0 +1,18 @@
+[package]
+name = "libjulius-sys"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+generate-bindings = []
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+bindgen = "0.66"
+cmake = "0.1"
+
+flate2 = { version = "1.0.26" }
+tar = { version = "0.4.40" }
+ureq = { version = "2.7.1", default-features = false, features = ["tls"] }
