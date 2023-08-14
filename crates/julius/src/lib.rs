@@ -160,7 +160,7 @@ impl<'a> Recog<'a> {
                 &mut *self.0,
                 code,
                 Some(Self::cb::<T>),
-                std::mem::transmute(&mut cb),
+                &mut cb as *mut T as *mut std::ffi::c_void,
             );
         }
     }
@@ -168,7 +168,7 @@ impl<'a> Recog<'a> {
         recog: *mut libjulius_sys::Recog,
         data: *mut c_void,
     ) {
-        let cb: &mut Env = std::mem::transmute(data);
+        let cb: &mut Env = &mut *(data as *mut Env);
         let mut recog_wrapped = Self(&mut *recog);
         cb(&mut recog_wrapped);
         std::mem::forget(recog_wrapped);
@@ -185,7 +185,7 @@ impl<'a> Recog<'a> {
                 &mut *self.0,
                 code,
                 Some(Self::adin_cb::<T>),
-                std::mem::transmute(&mut cb),
+                &mut cb as *mut T as *mut std::ffi::c_void,
             );
         }
     }
@@ -195,7 +195,7 @@ impl<'a> Recog<'a> {
         len: i32,
         data: *mut c_void,
     ) {
-        let cb: &mut Env = std::mem::transmute(data);
+        let cb: &mut Env = &mut *(data as *mut Env);
         let buffer = std::slice::from_raw_parts(buf, len as usize);
         let mut recog_wrapped = Self(&mut *recog);
         cb(&mut recog_wrapped, buffer);

@@ -134,10 +134,10 @@ impl HMMLogical {
         self.0.is_pseudo != 0
     }
     pub fn defined(&self) -> &HTKHMMData {
-        unsafe { std::mem::transmute(self.0.body.defined) }
+        unsafe { &*(self.0.body.defined as *const HTKHMMData) }
     }
     pub fn cd_set(&self) -> &CDSet {
-        unsafe { std::mem::transmute(self.0.body.defined) }
+        unsafe { &*(self.0.body.defined as *const CDSet) }
     }
 }
 impl Debug for HMMLogical {
