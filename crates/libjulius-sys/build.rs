@@ -79,16 +79,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rustc-link-lib=dylib=z");
     println!("cargo:rustc-link-lib=dylib=gomp");
 
-    generate_bindings(&julius_dir);
+    generate_bindings(&julius_dir.as_path());
 
     Ok(())
 }
 
 #[cfg(not(feature = "generate-bindings"))]
-fn generate_bindings(_julius_dir: &PathBuf) {}
+fn generate_bindings(_julius_dir: &Path) {}
 
 #[cfg(feature = "generate-bindings")]
-fn generate_bindings(julius_dir: &PathBuf) {
+fn generate_bindings(julius_dir: &Path) {
     let ignored_macros = IgnoreMacros(
         vec![
             "FP_INFINITE".into(),
@@ -156,7 +156,7 @@ fn prepare_source(build_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let cursor = std::io::Cursor::new(buffer);
     let gzdecoder = GzDecoder::new(cursor);
     let mut archive = Archive::new(gzdecoder);
-    archive.unpack(&build_dir)?;
+    archive.unpack(build_dir)?;
 
     Ok(build_dir.join("julius-4.6"))
 }

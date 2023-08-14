@@ -15,11 +15,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 ";
     let wav_path = "wav/sample.wav";
 
-    let jconf = JConf::from_string(&config)?;
+    let jconf = JConf::from_string(config)?;
     let mut recog = Recog::from_jconf(jconf)?;
     recog.add_callback(julius::CallbackType::Result, cb);
     recog.adin_init()?;
-    recog.open_stream(Some(&wav_path))?;
+    recog.open_stream(Some(wav_path))?;
     recog.recognize_stream()?;
     recog.close_stream()?;
 
@@ -101,7 +101,7 @@ fn display_hmmlogical(ph: &HMMLogical) -> String {
     if ph.is_pseudo() {
         format!("{{{}}}", ph.name().unwrap())
     } else if ph.name() == ph.defined().name() {
-        format!("{}", ph.name().unwrap(),)
+        ph.name().unwrap().to_string()
     } else {
         format!("{}[{}]", ph.name().unwrap(), ph.defined().name().unwrap())
     }
