@@ -6,9 +6,9 @@ pub struct SentenceAlign(pub(crate) libjulius_sys::SentenceAlign);
 impl SentenceAlign {
     pub fn t(&self) -> SentenceAlignWithType<'_> {
         match self.0.unittype as u32 {
-            libjulius_sys::PER_WORD => SentenceAlignWithType::Word(WordFrame(&self)),
-            libjulius_sys::PER_PHONEME => SentenceAlignWithType::Phoneme(PhonemeFrame(&self)),
-            libjulius_sys::PER_STATE => SentenceAlignWithType::State(StateFrame(&self)),
+            libjulius_sys::PER_WORD => SentenceAlignWithType::Word(WordFrame(self)),
+            libjulius_sys::PER_PHONEME => SentenceAlignWithType::Phoneme(PhonemeFrame(self)),
+            libjulius_sys::PER_STATE => SentenceAlignWithType::State(StateFrame(self)),
             _ => unreachable!(),
         }
     }
@@ -37,7 +37,7 @@ impl<'a> IAlignFrame for WordFrame<'a> {
 }
 impl<'a> WordFrame<'a> {
     pub fn frame_iter(&self) -> impl Iterator<Item = SentenceAlignFrameWord> + '_ {
-        (0..self.0 .0.num as usize).into_iter().map(|i| unsafe {
+        (0..self.0 .0.num as usize).map(|i| unsafe {
             SentenceAlignFrameWord {
                 w: *self.0 .0.w.add(i),
                 begin_frame: *self.0 .0.begin_frame.add(i),
@@ -57,7 +57,7 @@ impl<'a> IAlignFrame for PhonemeFrame<'a> {
 }
 impl<'a> PhonemeFrame<'a> {
     pub fn frame_iter(&self) -> impl Iterator<Item = SentenceAlignFramePhoneme> + '_ {
-        (0..self.0 .0.num as usize).into_iter().map(|i| unsafe {
+        (0..self.0 .0.num as usize).map(|i| unsafe {
             SentenceAlignFramePhoneme {
                 ph: HMMLogical(**self.0 .0.ph.add(i)),
                 begin_frame: *self.0 .0.begin_frame.add(i),
@@ -79,7 +79,6 @@ impl<'a> StateFrame<'a> {
     pub fn frame_iter(&self) -> impl Iterator<Item = SentenceAlignFrameState> + '_ {
         let is_multipath = !self.0 .0.is_iwsp.is_null();
         (0..self.0 .0.num as usize)
-            .into_iter()
             .map(move |i| unsafe {
                 SentenceAlignFrameState {
                     ph: HMMLogical(**self.0 .0.ph.add(i)),
