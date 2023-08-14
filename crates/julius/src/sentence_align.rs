@@ -39,10 +39,10 @@ impl<'a> WordFrame<'a> {
     pub fn frame_iter(&self) -> impl Iterator<Item = SentenceAlignFrameWord> + '_ {
         (0..self.0 .0.num as usize).into_iter().map(|i| unsafe {
             SentenceAlignFrameWord {
-                w: *self.0 .0.w.offset(i as isize),
-                begin_frame: *self.0 .0.begin_frame.offset(i as isize),
-                end_frame: *self.0 .0.end_frame.offset(i as isize),
-                avgscore: *self.0 .0.avgscore.offset(i as isize),
+                w: *self.0 .0.w.add(i),
+                begin_frame: *self.0 .0.begin_frame.add(i),
+                end_frame: *self.0 .0.end_frame.add(i),
+                avgscore: *self.0 .0.avgscore.add(i),
             }
         })
     }
@@ -59,10 +59,10 @@ impl<'a> PhonemeFrame<'a> {
     pub fn frame_iter(&self) -> impl Iterator<Item = SentenceAlignFramePhoneme> + '_ {
         (0..self.0 .0.num as usize).into_iter().map(|i| unsafe {
             SentenceAlignFramePhoneme {
-                ph: HMMLogical(**self.0 .0.ph.offset(i as isize)),
-                begin_frame: *self.0 .0.begin_frame.offset(i as isize),
-                end_frame: *self.0 .0.end_frame.offset(i as isize),
-                avgscore: *self.0 .0.avgscore.offset(i as isize),
+                ph: HMMLogical(**self.0 .0.ph.add(i)),
+                begin_frame: *self.0 .0.begin_frame.add(i),
+                end_frame: *self.0 .0.end_frame.add(i),
+                avgscore: *self.0 .0.avgscore.add(i),
             }
         })
     }
@@ -82,16 +82,16 @@ impl<'a> StateFrame<'a> {
             .into_iter()
             .map(move |i| unsafe {
                 SentenceAlignFrameState {
-                    ph: HMMLogical(**self.0 .0.ph.offset(i as isize)),
-                    loc: *self.0 .0.loc.offset(i as isize),
+                    ph: HMMLogical(**self.0 .0.ph.add(i)),
+                    loc: *self.0 .0.loc.add(i),
                     is_iwsp: if is_multipath {
-                        Some(*self.0 .0.is_iwsp.offset(i as isize) != 0)
+                        Some(*self.0 .0.is_iwsp.add(i) != 0)
                     } else {
                         None
                     },
-                    begin_frame: *self.0 .0.begin_frame.offset(i as isize),
-                    end_frame: *self.0 .0.end_frame.offset(i as isize),
-                    avgscore: *self.0 .0.avgscore.offset(i as isize),
+                    begin_frame: *self.0 .0.begin_frame.add(i),
+                    end_frame: *self.0 .0.end_frame.add(i),
+                    avgscore: *self.0 .0.avgscore.add(i),
                 }
             })
     }
