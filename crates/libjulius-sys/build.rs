@@ -1,24 +1,10 @@
 use std::{
-    collections::HashSet,
     error::Error,
     fs::File,
     io::{BufWriter, Write},
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
-
-#[derive(Debug)]
-struct IgnoreMacros(HashSet<String>);
-
-impl bindgen::callbacks::ParseCallbacks for IgnoreMacros {
-    fn will_parse_macro(&self, name: &str) -> bindgen::callbacks::MacroParsingBehavior {
-        if self.0.contains(name) {
-            bindgen::callbacks::MacroParsingBehavior::Ignore
-        } else {
-            bindgen::callbacks::MacroParsingBehavior::Default
-        }
-    }
-}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let build_dir_str = std::env::var_os("OUT_DIR").unwrap();
@@ -89,19 +75,6 @@ fn generate_bindings(_julius_dir: &Path) {}
 
 #[cfg(feature = "generate-bindings")]
 fn generate_bindings(julius_dir: &Path) {
-    let ignored_macros = IgnoreMacros(
-        vec![
-            "FP_INFINITE".into(),
-            "FP_NAN".into(),
-            "FP_NORMAL".into(),
-            "FP_SUBNORMAL".into(),
-            "FP_ZERO".into(),
-            "IPPORT_RESERVED".into(),
-        ]
-        .into_iter()
-        .collect(),
-    );
-
     let bindings = bindgen::Builder::default()
         .header("wrapper.h")
         .clang_args([
@@ -112,7 +85,6 @@ fn generate_bindings(julius_dir: &Path) {
             format!("-F{}", julius_dir.join("libsent/include").to_str().unwrap()),
         ])
         .allowlist_file(format!("{}.*", julius_dir.to_str().unwrap()))
-        .parse_callbacks(Box::new(ignored_macros))
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .generate()
         .expect("Unable to generate bindings");
