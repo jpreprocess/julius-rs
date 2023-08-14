@@ -79,7 +79,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rustc-link-lib=dylib=z");
     println!("cargo:rustc-link-lib=dylib=gomp");
 
-    generate_bindings(&julius_dir.as_path());
+    generate_bindings(julius_dir.as_path());
 
     Ok(())
 }

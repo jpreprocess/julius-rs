@@ -101,7 +101,7 @@ fn display_hmmlogical(ph: &HMMLogical) -> String {
     if ph.is_pseudo() {
         format!("{{{}}}", ph.name().unwrap())
     } else if ph.name() == ph.defined().name() {
-        ph.name().unwrap().to_string()
+        ph.name().unwrap()
     } else {
         format!("{}[{}]", ph.name().unwrap(), ph.defined().name().unwrap())
     }
