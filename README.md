@@ -9,7 +9,7 @@ Othrwise, installation may fail (not tested yet).
 
 ## Copyrights
 
-See [NOTICE.txt](https://github.com/jpreprocess/julius-rs/blob/main/NOTICE.txt) for license text.
+See [NOTICE](https://github.com/jpreprocess/julius-rs/blob/main/NOTICE) file for license text.
 
 - crates/julius/examples/align_wav/main.rs, crates/libjulius-sys/src/bindings.rs
   - [Julius](https://github.com/julius-speech/julius)
