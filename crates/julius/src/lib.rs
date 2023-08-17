@@ -3,11 +3,14 @@ use std::{
     ptr::null_mut,
 };
 
+use adin::ADIn;
 use iter::BindIterator;
 use recog_process::RecogProcess;
 use strum_macros::FromRepr;
 
 mod iter;
+
+pub mod adin;
 pub mod recog_process;
 pub mod sentence_align;
 
@@ -117,6 +120,35 @@ impl<'a> Recog<'a> {
             0 => Err(anyhow::anyhow!("Failed to initialize input device")),
             _ => unreachable!(),
         }
+    }
+
+    pub(crate) fn get_adin_mut(&mut self) -> &mut ADIn {
+        unsafe { &mut *(self.0.adin as *mut ADIn) }
+    }
+    /// Setup custom ADIn.
+    /// 
+    /// The following members of ADIn will interfere with custom ADIn.
+    /// - ad_standby
+    /// - ad_begin
+    /// - ad_end
+    /// - ad_resume
+    /// - ad_pause
+    /// - ad_terminate
+    /// - ad_read
+    /// - ad_input_name
+    /// - silence_cut_default
+    /// - enable_thread
+    /// - level_coef
+    /// - down_sample
+    /// - strip_flag
+    /// - need_zmean
+    pub fn custom_adin<T: FnMut(usize) -> Option<U>, U: AsRef<[i16]>>(&mut self, mut ad_read: T) {
+        self.get_adin_mut().ad_read_hack_prepare();
+        self.add_callback_adin(AdinCallbackType::Captured, |recog, _data| {
+            let adin = recog.get_adin_mut();
+            let data = ad_read(adin.samp_num() as usize);
+            adin.ad_read_hack_callback(data);
+        });
     }
 
     pub fn open_stream(&mut self, file_or_dev_name: Option<&str>) -> Result<(), anyhow::Error> {
