@@ -11121,7 +11121,8 @@ pub const CALLBACK_PAUSE_FUNCTION: _bindgen_ty_32 = 29;
 pub const CALLBACK_DEBUG_PASS2_POP: _bindgen_ty_32 = 30;
 pub const CALLBACK_DEBUG_PASS2_PUSH: _bindgen_ty_32 = 31;
 pub const CALLBACK_RESULT_PASS1_DETERMINED: _bindgen_ty_32 = 32;
-pub const SIZEOF_CALLBACK_ID: _bindgen_ty_32 = 33;
+pub const CALLBACK_ADIN_INJECT: _bindgen_ty_32 = 33;
+pub const SIZEOF_CALLBACK_ID: _bindgen_ty_32 = 34;
 pub type _bindgen_ty_32 = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -17143,11 +17144,11 @@ pub struct __Recog__ {
         ) -> boolean,
     >,
     pub triggered: boolean,
-    pub callback_function: [[::std::option::Option<unsafe extern "C" fn()>; 10usize]; 33usize],
-    pub callback_user_data: [[*mut ::std::os::raw::c_void; 10usize]; 33usize],
-    pub callback_function_num: [::std::os::raw::c_int; 33usize],
-    pub callback_list_code: [::std::os::raw::c_int; 330usize],
-    pub callback_list_loc: [::std::os::raw::c_int; 330usize],
+    pub callback_function: [[::std::option::Option<unsafe extern "C" fn()>; 10usize]; 34usize],
+    pub callback_user_data: [[*mut ::std::os::raw::c_void; 10usize]; 34usize],
+    pub callback_function_num: [::std::os::raw::c_int; 34usize],
+    pub callback_list_code: [::std::os::raw::c_int; 340usize],
+    pub callback_list_loc: [::std::os::raw::c_int; 340usize],
     pub callback_num: ::std::os::raw::c_int,
     pub hook: *mut ::std::os::raw::c_void,
 }
@@ -17157,7 +17158,7 @@ fn bindgen_test_layout___Recog__() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<__Recog__>(),
-        8240usize,
+        8488usize,
         concat!("Size of: ", stringify!(__Recog__))
     );
     assert_eq!(
@@ -17397,7 +17398,7 @@ fn bindgen_test_layout___Recog__() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).callback_user_data) as usize - ptr as usize },
-        2816usize,
+        2896usize,
         concat!(
             "Offset of field: ",
             stringify!(__Recog__),
@@ -17407,7 +17408,7 @@ fn bindgen_test_layout___Recog__() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).callback_function_num) as usize - ptr as usize },
-        5456usize,
+        5616usize,
         concat!(
             "Offset of field: ",
             stringify!(__Recog__),
@@ -17417,7 +17418,7 @@ fn bindgen_test_layout___Recog__() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).callback_list_code) as usize - ptr as usize },
-        5588usize,
+        5752usize,
         concat!(
             "Offset of field: ",
             stringify!(__Recog__),
@@ -17427,7 +17428,7 @@ fn bindgen_test_layout___Recog__() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).callback_list_loc) as usize - ptr as usize },
-        6908usize,
+        7112usize,
         concat!(
             "Offset of field: ",
             stringify!(__Recog__),
@@ -17437,7 +17438,7 @@ fn bindgen_test_layout___Recog__() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).callback_num) as usize - ptr as usize },
-        8228usize,
+        8472usize,
         concat!(
             "Offset of field: ",
             stringify!(__Recog__),
@@ -17447,7 +17448,7 @@ fn bindgen_test_layout___Recog__() {
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).hook) as usize - ptr as usize },
-        8232usize,
+        8480usize,
         concat!(
             "Offset of field: ",
             stringify!(__Recog__),

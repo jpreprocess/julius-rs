@@ -1,34 +1,50 @@
 use std::{
     error::Error,
     fs::File,
-    io::{BufWriter, Write},
+    io::Write,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
 
 fn main() -> Result<(), Box<dyn Error>> {
+    let source_dir = std::env::current_dir()?;
+
     let build_dir_str = std::env::var_os("OUT_DIR").unwrap();
     let build_dir = Path::new(&build_dir_str);
 
     let julius_dir = prepare_source(build_dir)?;
 
-    eprintln!("--- libsent/configure patch start ---");
+    eprintln!("--- patch start ---");
 
-    let mut patch = Command::new("patch")
-        .arg("-p1")
-        .arg("libsent/configure")
-        .current_dir(&julius_dir)
+    let patch_config = Command::new("patch")
+        .arg("-p")
+        .arg("1")
+        .arg("-d")
+        .arg(&julius_dir)
+        .arg("-i")
+        .arg(source_dir.join("configure.patch"))
         .stdin(Stdio::piped())
-        .stdout(Stdio::null())
-        .spawn()?;
-    {
-        let mut patchstdin = patch.stdin.as_ref().unwrap();
-        let mut writer = BufWriter::new(&mut patchstdin);
-        writer.write_all(&std::fs::read("configure.patch")?)?;
-    }
-    patch.wait()?;
+        // .stdout(Stdio::null())
+        .output()?;
 
-    eprintln!("--- libsent/configure patch end ---");
+    eprintln!("{}\n", std::str::from_utf8(&patch_config.stdout)?);
+    eprintln!("{}\n", std::str::from_utf8(&patch_config.stderr)?);
+
+    let patch_source = Command::new("patch")
+        .arg("-p")
+        .arg("1")
+        .arg("-d")
+        .arg(&julius_dir)
+        .arg("-i")
+        .arg(source_dir.join("source.patch"))
+        .stdin(Stdio::piped())
+        // .stdout(Stdio::null())
+        .output()?;
+
+    eprintln!("{}\n", std::str::from_utf8(&patch_source.stdout)?);
+    eprintln!("{}\n", std::str::from_utf8(&patch_source.stderr)?);
+
+    eprintln!("--- patch end ---");
 
     eprintln!("--- configure start ---");
 

@@ -1,0 +1,25 @@
+diff --git a/libjulius/include/julius/callback.h b/libjulius/include/julius/callback.h
+index b201128..c280087 100644
+--- a/libjulius/include/julius/callback.h
++++ b/libjulius/include/julius/callback.h
+@@ -235,6 +235,8 @@ enum {
+   CALLBACK_DEBUG_PASS2_POP,
+   CALLBACK_DEBUG_PASS2_PUSH,
+   CALLBACK_RESULT_PASS1_DETERMINED,
++  
++  CALLBACK_ADIN_INJECT,
+ 
+   SIZEOF_CALLBACK_ID
+ };
+diff --git a/libjulius/src/adin-cut.c b/libjulius/src/adin-cut.c
+index 1cd32db..5d3e829 100644
+--- a/libjulius/src/adin-cut.c
++++ b/libjulius/src/adin-cut.c
+@@ -473,6 +473,7 @@ adin_cut(int (*ad_process)(SP16 *, int, Recog *), int (*ad_check)(Recog *), Reco
+       } else {
+ 	cnt = (*(a->ad_read))(&(a->buffer[a->bp]), a->bpmax - a->bp);
+       }
++      callback_exec_adin(CALLBACK_ADIN_INJECT, recog, &cnt, 0);
+       if (cnt < 0) {		/* end of stream / segment or error */
+ 	/* set the end status */
+ 	switch(cnt) {
