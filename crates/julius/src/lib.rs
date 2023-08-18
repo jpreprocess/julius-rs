@@ -140,16 +140,9 @@ impl<'a> Recog<'a> {
     /// - enable_thread
     /// - down_sample
     ///
-    pub fn custom_adin<T: FnMut(usize) -> Option<U> + 'a, U: AsRef<[i16]>>(
-        &mut self,
-        mut ad_read: T,
-    ) {
+    pub fn custom_adin<T: FnMut(usize) -> Option<U> + 'a, U: AsRef<[i16]>>(&mut self, ad_read: T) {
         self.get_adin_mut().ad_read_inject_prepare();
-        self.add_callback_adin_inject(move |recog, cnt| {
-            let adin = recog.get_adin_mut();
-            let data = ad_read(adin.samp_num() as usize);
-            *cnt = adin.ad_read_inject_callback(data);
-        });
+        self.add_callback_adin_inject(ad_read);
     }
 
     pub fn open_stream(&mut self, file_or_dev_name: Option<&str>) -> Result<(), anyhow::Error> {
@@ -241,27 +234,38 @@ impl<'a> Recog<'a> {
         std::mem::forget(recog_wrapped);
     }
 
-    fn add_callback_adin_inject<T: FnMut(&mut Self, &mut i32) + 'a>(&mut self, callback: T) {
+    fn add_callback_adin_inject<T: FnMut(usize) -> Option<U> + 'a, U: AsRef<[i16]>>(
+        &mut self,
+        callback: T,
+    ) {
         let cb = Box::new(Box::new(callback));
         unsafe {
             libjulius_sys::callback_add_adin(
                 &mut *self.0,
                 libjulius_sys::CALLBACK_ADIN_INJECT as i32,
-                Some(Self::adin_inject_cb::<T>),
+                Some(Self::adin_inject_cb::<T, U>),
                 Box::into_raw(cb) as *mut _,
             );
         }
     }
-    unsafe extern "C" fn adin_inject_cb<Env: Sized + FnMut(&mut Self, &mut i32)>(
+    unsafe extern "C" fn adin_inject_cb<
+        Env: FnMut(usize) -> Option<Result> + 'a,
+        Result: AsRef<[i16]>,
+    >(
         recog: *mut libjulius_sys::Recog,
         // This is actually the pointer to cnt
         buf: *mut libjulius_sys::SP16,
         _len: i32,
         data: *mut c_void,
     ) {
-        let closure: &mut Box<Env> = std::mem::transmute(data);
+        let ad_read: &mut Box<Env> = std::mem::transmute(data);
         let mut recog_wrapped = Self(&mut *recog);
-        closure(&mut recog_wrapped, std::mem::transmute(buf));
+        let cnt: &mut i32 = std::mem::transmute(buf);
+
+        let adin = recog_wrapped.get_adin_mut();
+        let data = ad_read(adin.samp_num() as usize);
+        *cnt = adin.ad_read_inject_callback(data);
+
         std::mem::forget(recog_wrapped);
     }
 
