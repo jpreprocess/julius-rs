@@ -142,7 +142,10 @@ impl<'a> Recog<'a> {
     /// - down_sample
     /// - strip_flag
     /// - need_zmean
-    pub fn custom_adin<T: FnMut(usize) -> Option<U>, U: AsRef<[i16]>>(&mut self, mut ad_read: T) {
+    pub fn custom_adin<T: FnMut(usize) -> Option<U> + 'a, U: AsRef<[i16]>>(
+        &mut self,
+        mut ad_read: T,
+    ) {
         self.get_adin_mut().ad_read_hack_prepare();
         self.add_callback_adin(AdinCallbackType::Captured, |recog, _data| {
             let adin = recog.get_adin_mut();
@@ -210,18 +213,19 @@ impl<'a> Recog<'a> {
         std::mem::forget(recog_wrapped);
     }
 
-    pub fn add_callback_adin<T: FnMut(&mut Self, &[i16])>(
+    pub fn add_callback_adin<T: FnMut(&mut Self, &[i16]) + 'a>(
         &mut self,
         cb_type: AdinCallbackType,
-        mut cb: T,
+        callback: T,
     ) {
         let code = cb_type as i32;
+        let cb = Box::new(Box::new(callback));
         unsafe {
             libjulius_sys::callback_add_adin(
                 &mut *self.0,
                 code,
                 Some(Self::adin_cb::<T>),
-                &mut cb as *mut T as *mut std::ffi::c_void,
+                Box::into_raw(cb) as *mut _,
             );
         }
     }
@@ -231,10 +235,10 @@ impl<'a> Recog<'a> {
         len: i32,
         data: *mut c_void,
     ) {
-        let cb: &mut Env = &mut *(data as *mut Env);
+        let closure: &mut Box<Env> = std::mem::transmute(data);
         let buffer = std::slice::from_raw_parts(buf, len as usize);
         let mut recog_wrapped = Self(&mut *recog);
-        cb(&mut recog_wrapped, buffer);
+        closure(&mut recog_wrapped, buffer);
         std::mem::forget(recog_wrapped);
     }
 
