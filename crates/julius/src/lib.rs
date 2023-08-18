@@ -190,14 +190,15 @@ impl<'a> Recog<'a> {
         }
     }
 
-    pub fn add_callback<T: FnMut(&mut Self)>(&mut self, cb_type: CallbackType, mut cb: T) {
+    pub fn add_callback<T: FnMut(&mut Self) + 'a>(&mut self, cb_type: CallbackType, callback: T) {
         let code = cb_type as i32;
+        let cb = Box::new(Box::new(callback));
         unsafe {
             libjulius_sys::callback_add(
                 &mut *self.0,
                 code,
                 Some(Self::cb::<T>),
-                &mut cb as *mut T as *mut std::ffi::c_void,
+                Box::into_raw(cb) as *mut _,
             );
         }
     }
@@ -205,9 +206,9 @@ impl<'a> Recog<'a> {
         recog: *mut libjulius_sys::Recog,
         data: *mut c_void,
     ) {
-        let cb: &mut Env = &mut *(data as *mut Env);
+        let closure: &mut Box<Env> = std::mem::transmute(data);
         let mut recog_wrapped = Self(&mut *recog);
-        cb(&mut recog_wrapped);
+        closure(&mut recog_wrapped);
         std::mem::forget(recog_wrapped);
     }
 
